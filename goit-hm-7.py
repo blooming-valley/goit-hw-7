@@ -86,19 +86,20 @@ class AddressBook(UserDict):
             birthday_dt = contact.birthday.value
             birthday_this_year = datetime(year=current_date.year, month=birthday_dt.month, day=birthday_dt.day).date()
 
-            # Check if birthday has already occurred this year
+            # Adjust if birthday has already occurred this year
             if current_date > birthday_this_year:
                 birthday_this_year = datetime(year=current_date.year + 1, month=birthday_dt.month, day=birthday_dt.day).date()
 
             # Check if the upcoming birthday is within the congratulation period
             if current_date <= birthday_this_year <= current_date + congratulation_period:
-                result.append(f"Contact name: {contact.name.value}, birthday: {birthday_this_year.strftime('%d.%m.%Y')}")
-            elif birthday_this_year < current_date <= birthday_this_year + timedelta(days=days):
+                # Move birthday to Monday if it falls on the weekend
+                if birthday_this_year.weekday() == 5:  # Saturday
+                    birthday_this_year += timedelta(days=2)
+                elif birthday_this_year.weekday() == 6:  # Sunday
+                    birthday_this_year += timedelta(days=1)
                 result.append(f"Contact name: {contact.name.value}, birthday: {birthday_this_year.strftime('%d.%m.%Y')}")
 
         return result
-
-
 
 def input_error(func):
     @wraps(func)
@@ -225,5 +226,4 @@ def main():
             print("Invalid command.")
 
 if __name__ == "__main__":
-    main()
-
+    main() 
